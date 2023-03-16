@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -24,13 +25,36 @@ public class TransactionService {
 
     public TransactionsStats getStats() {
         TransactionsStats transactionsStats = new TransactionsStats();
-        for (TransactionRequest request : listOfTransactions) {
-            if (isValid(listOfTransactions.pop())) {
-                transactionsStats.setSum(addSum(transactionsStats.getSum(), request.getAmount()));
-                transactionsStats.setCount(countTransactions(transactionsStats.getCount()));
-            }
-        }
+        List<TransactionRequest> filteredTransactions = listOfTransactions.stream()
+                .filter(transactionRequest -> isValid(transactionRequest))
+                .collect(Collectors.toList());
+
+        transactionsStats.setCount((long) filteredTransactions.size());
+        transactionsStats.setSum(filteredTransactions.stream()
+                .collect(Collectors.summingDouble(TransactionRequest::getAmount))
+        );
+        transactionsStats.setAvg(filteredTransactions.stream()
+                .collect(Collectors.averagingDouble(TransactionRequest::getAmount))
+        );
+
+
+
+
+
+
+//        for (TransactionRequest request : listOfTransactions) {
+//            if (isValid(request)) {
+//                transactionsStats.setSum(addSum(transactionsStats.getSum(), request.getAmount()));
+//                transactionsStats.setCount(countTransactions(transactionsStats.getCount()));
+//            }
+//        }
+//        transactionsStats.setAvg(averageOfTransactions(transactionsStats.getSum(),
+//                transactionsStats.getCount()));
         return transactionsStats;
+    }
+
+    private Double averageOfTransactions(Double sum, Long count) {
+        return sum/count;
     }
 
     private Long countTransactions(Long count) {

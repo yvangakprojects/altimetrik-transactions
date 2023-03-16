@@ -20,7 +20,7 @@ class TransactionServiceTest {
     private TransactionRequest request;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         subject = new TransactionService();
         request = TransactionRequest.builder()
                 .amount(200.0)
@@ -30,7 +30,7 @@ class TransactionServiceTest {
 
     @Nested
     @DisplayName("Saving Transactions Tests")
-    class SaveTransaction{
+    class SaveTransaction {
         /**
          * POSITIVE SCENARIO
          * GIVEN A Transaction Request that occurred last 1 Minute
@@ -38,7 +38,7 @@ class TransactionServiceTest {
          * SHOULD return TRUE
          */
         @Test
-        void whenSaveTransaction_givenTransactionThatHappenedLast1Minute_shouldVerifyTrue(){
+        void whenSaveTransaction_givenTransactionThatHappenedLast1Minute_shouldVerifyTrue() {
             //GIVEN
             request = TransactionRequest.builder()
                     .amount(200.0)
@@ -50,7 +50,7 @@ class TransactionServiceTest {
 
             //ASSERTIONS
             assertTrue(actual);
-            assertEquals(1,TransactionService.listOfTransactions.size());
+            assertEquals(1, TransactionService.listOfTransactions.size());
         }
 
         /**
@@ -60,7 +60,7 @@ class TransactionServiceTest {
          * SHOULD return FALSE
          */
         @Test
-        void whenSaveTransaction_givenTransactionThatHappenedMoreThan1Minute_shouldVerifyFalse(){
+        void whenSaveTransaction_givenTransactionThatHappenedMoreThan1Minute_shouldVerifyFalse() {
             //GIVEN
             request = TransactionRequest.builder()
                     .amount(200.0)
@@ -72,13 +72,13 @@ class TransactionServiceTest {
 
             //ASSERTIONS
             assertFalse(actual);
-            assertEquals(1,TransactionService.listOfTransactions.size());
+            assertEquals(1, TransactionService.listOfTransactions.size());
         }
     }
 
     @Nested
     @DisplayName("Get Stats of Transactions that happened last 1 Minute")
-    class GetStats{
+    class GetStats {
         /**
          * POSITIVE SCENARIO
          * GIVEN a list of Transactions
@@ -86,7 +86,7 @@ class TransactionServiceTest {
          * SHOULD return stats of transactions that happened last 1 minute
          */
         @Test
-        void givenTransactions_whenGetStats_shouldVerifyStatsOfTransactionsThatHappenedLast1Minute(){
+        void givenTransactions_whenGetStats_shouldVerifyStatsOfTransactionsThatHappenedLast1Minute() {
             // WHEN
             TransactionRequest transaction_that_happened_3_minutes_ago = TransactionRequest.builder()
                     .amount(200.0)
@@ -97,7 +97,7 @@ class TransactionServiceTest {
                     .time(LocalDateTime.now().minusMinutes(2))
                     .build();
             TransactionRequest transaction_that_happened_2_seconds_ago = TransactionRequest.builder()
-                    .amount(200.0)
+                    .amount(50.0)
                     .time(LocalDateTime.now().minusSeconds(2))
                     .build();
             TransactionRequest transaction_Within_minute_ago = TransactionRequest.builder()
@@ -105,8 +105,8 @@ class TransactionServiceTest {
                     .time(LocalDateTime.now())
                     .build();
 
-           // TransactionService.listOfTransactions.push(transaction_that_happened_3_minutes_ago);
-           // TransactionService.listOfTransactions.push(transaction_that_happened_2_minutes_ago);
+            TransactionService.listOfTransactions.push(transaction_that_happened_3_minutes_ago);
+            TransactionService.listOfTransactions.push(transaction_that_happened_2_minutes_ago);
             TransactionService.listOfTransactions.push(transaction_that_happened_2_seconds_ago);
             TransactionService.listOfTransactions.push(transaction_Within_minute_ago);
 
@@ -114,7 +114,9 @@ class TransactionServiceTest {
             TransactionsStats actual = subject.getStats();
 
             //VERIFY
-            assertEquals(1, actual.getCount());
+            assertEquals(2, actual.getCount());
+            assertEquals(250, actual.getSum());
+            assertEquals(125, actual.getAvg());
         }
     }
 
