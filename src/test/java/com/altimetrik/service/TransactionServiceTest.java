@@ -117,6 +117,8 @@ class TransactionServiceTest {
             assertEquals(2, actual.getCount());
             assertEquals(250, actual.getSum());
             assertEquals(125, actual.getAvg());
+            assertEquals(200, actual.getMax());
+            assertEquals(50, actual.getMin());
         }
     }
 

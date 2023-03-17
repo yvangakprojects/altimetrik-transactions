@@ -2,10 +2,13 @@ package com.altimetrik.service;
 
 import com.altimetrik.controller.models.TransactionRequest;
 import com.altimetrik.service.domain.TransactionsStats;
+import com.altimetrik.util.MaxTransactionComparator;
+import com.altimetrik.util.MinTransactionComparator;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -25,6 +28,7 @@ public class TransactionService {
 
     public TransactionsStats getStats() {
         TransactionsStats transactionsStats = new TransactionsStats();
+
         List<TransactionRequest> filteredTransactions = listOfTransactions.stream()
                 .filter(transactionRequest -> isValid(transactionRequest))
                 .collect(Collectors.toList());
@@ -36,12 +40,37 @@ public class TransactionService {
         transactionsStats.setAvg(filteredTransactions.stream()
                 .collect(Collectors.averagingDouble(TransactionRequest::getAmount))
         );
-
-
-
-
-
-
+        transactionsStats.setMax(filteredTransactions.stream()
+                .max(new Comparator<TransactionRequest>() {
+                    @Override
+                    public int compare(TransactionRequest o1, TransactionRequest o2) {
+                        return (int) (o1.getAmount() - o2.getAmount());
+                    }
+                })
+                .get()
+                .getAmount()
+        );
+        transactionsStats.setMin(filteredTransactions.stream()
+                .max(new Comparator<TransactionRequest>() {
+                    @Override
+                    public int compare(TransactionRequest o1, TransactionRequest o2) {
+                        return (int) (o2.getAmount() - o1.getAmount());
+                    }
+                })
+                .get()
+                .getAmount()
+        );
+//        transactionsStats.setMax(filteredTransactions.stream()
+//                .max(new MaxTransactionComparator())
+//                .get()
+//                .getAmount()
+//        );
+//        transactionsStats.setMin(filteredTransactions.stream()
+//                .max(new MinTransactionComparator())
+//                .get()
+//                .getAmount()
+//        );
+        //------------------------
 //        for (TransactionRequest request : listOfTransactions) {
 //            if (isValid(request)) {
 //                transactionsStats.setSum(addSum(transactionsStats.getSum(), request.getAmount()));
@@ -54,7 +83,7 @@ public class TransactionService {
     }
 
     private Double averageOfTransactions(Double sum, Long count) {
-        return sum/count;
+        return sum / count;
     }
 
     private Long countTransactions(Long count) {
