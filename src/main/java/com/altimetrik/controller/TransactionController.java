@@ -6,6 +6,7 @@ import com.altimetrik.controller.models.ErrorResponse;
 import com.altimetrik.controller.models.TransactionRequest;
 import com.altimetrik.controller.models.TransactionResponse;
 import com.altimetrik.service.TransactionService;
+import com.altimetrik.service.domain.TransactionsStats;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,8 @@ public class TransactionController {
             @RequestHeader(value = "application-Id") String applicationId,
             @RequestBody TransactionRequest request) {
 
-        BaseResponse response = null;
-        HttpStatus httpStatus = null;
+        BaseResponse response ;
+        HttpStatus httpStatus;
 
         Boolean isSaved = transactionService.saveTransaction(request);
 
@@ -54,4 +55,19 @@ public class TransactionController {
 
         return new ResponseEntity<>(response, httpStatus);
     }
+
+    @GetMapping
+    public ResponseEntity<TransactionResponse> getTransactionsStats(
+            @RequestHeader(value = "api-version") String apiVersion,
+            @RequestHeader(value = "application-Id") String applicationId) {
+
+        HttpStatus httpStatus = HttpStatus.OK;
+
+        TransactionsStats stats = transactionService.getStats();
+
+        TransactionResponse response = new TransactionResponse(stats);
+
+        return new ResponseEntity<>(response, httpStatus);
+    }
+
 }

@@ -1,15 +1,14 @@
 package com.altimetrik.service.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TransactionsStats {
     private Double sum;

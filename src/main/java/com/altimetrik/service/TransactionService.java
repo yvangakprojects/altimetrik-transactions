@@ -33,6 +33,8 @@ public class TransactionService {
                 .filter(transactionRequest -> isValid(transactionRequest))
                 .collect(Collectors.toList());
 
+        filteredTransactions.stream().collect(Collectors.counting());
+
         transactionsStats.setCount((long) filteredTransactions.size());
         transactionsStats.setSum(filteredTransactions.stream()
                 .collect(Collectors.summingDouble(TransactionRequest::getAmount))

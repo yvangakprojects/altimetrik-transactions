@@ -2,6 +2,7 @@ package com.altimetrik.controller;
 
 import com.altimetrik.controller.models.TransactionRequest;
 import com.altimetrik.service.TransactionService;
+import com.altimetrik.service.domain.TransactionsStats;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -42,6 +44,7 @@ class TransactionControllerTest {
     private String apiVersion, applicationId, path, requestBody;
 
     private TransactionRequest transactionRequest;
+    private TransactionsStats transactionsStats;
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
@@ -52,6 +55,14 @@ class TransactionControllerTest {
         transactionRequest = TransactionRequest.builder()
                 .amount(200.0)
                 .time(LocalDateTime.now())
+                .build();
+
+        transactionsStats = TransactionsStats.builder()
+                .count(3L)
+                .avg(12.5)
+                .max(25.0)
+                .min(5.0)
+                .sum(100.0)
                 .build();
 
         System.out.println(transactionRequest);
@@ -108,5 +119,30 @@ class TransactionControllerTest {
                     .andExpect(status().isCreated());
         }
 
+    }
+
+    @Nested
+    @DisplayName("GET Transactions")
+    class GetTransactions{
+        /**
+         * POSITIVE SCENARIO
+         * when GET method to pull transactions stats
+         * Given transactions
+         * should return 200 OK and the transaction stats
+         */
+
+        @Test
+        void whenSaveTransaction_givenServiceReturnsFalse_shouldExpect204NoContent() throws Exception {
+            // GIVEN
+            doReturn(transactionsStats).when(transactionService).getStats();
+            // WHEN
+            mockMvc.perform(get(path)
+                            .header("api-version", apiVersion)
+                            .header("application-Id", applicationId))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.transactionsStats.sum", is(100.0)));
+
+        }
     }
 }
